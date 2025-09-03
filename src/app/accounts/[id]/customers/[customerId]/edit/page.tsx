@@ -30,7 +30,7 @@ export default function EditCustomerPage() {
     customerEmail: '',
     customerPhone: '',
     amountPaid: 0,
-    paymentStatus: PaymentStatus.PENDING,
+    paymentStatus: PaymentStatus.DUE,
     notes: '',
     purchaseDate: '',
     expiryDate: '',
@@ -222,6 +222,7 @@ export default function EditCustomerPage() {
 
     setSaving(true)
     try {
+      // @ts-expect-error - Supabase type issue with update method
       const { error } = await supabase
         .from('customers')
         .update({
@@ -396,10 +397,9 @@ export default function EditCustomerPage() {
                     onChange={(e) => handleInputChange('paymentStatus', e.target.value as PaymentStatus)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                   >
-                    <option value={PaymentStatus.PENDING}>Pending</option>
+                    <option value={PaymentStatus.DUE}>Due</option>
+                    <option value={PaymentStatus.PARTIAL}>Partial</option>
                     <option value={PaymentStatus.PAID}>Paid</option>
-                    <option value={PaymentStatus.OVERDUE}>Overdue</option>
-                    <option value={PaymentStatus.CANCELLED}>Cancelled</option>
                   </select>
                 </div>
 

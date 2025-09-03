@@ -12,9 +12,8 @@ export enum AccountStatus {
 
 export enum PaymentStatus {
   PAID = 'paid',
-  PENDING = 'pending',
-  OVERDUE = 'overdue',
-  CANCELLED = 'cancelled',
+  DUE = 'due',
+  PARTIAL = 'partial',
 }
 
 export enum ExpiryPriority {

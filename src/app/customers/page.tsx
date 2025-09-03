@@ -75,7 +75,7 @@ export default function CustomersOverviewPage() {
           currency: customerData.currency,
           paymentStatus: Object.values(PaymentStatus).includes(customerData.payment_status as PaymentStatus) 
             ? customerData.payment_status as PaymentStatus 
-            : PaymentStatus.PENDING,
+            : PaymentStatus.DUE,
           notes: customerData.notes,
           purchaseDate: new Date(customerData.purchase_date),
           expiryDate: new Date(customerData.expiry_date),
@@ -165,10 +165,10 @@ export default function CustomersOverviewPage() {
         case PaymentStatus.PAID:
           acc.paidCustomers++
           break
-        case PaymentStatus.PENDING:
+        case PaymentStatus.DUE:
           acc.pendingCustomers++
           break
-        case PaymentStatus.OVERDUE:
+        case PaymentStatus.PARTIAL:
           acc.overdueCustomers++
           break
       }
@@ -188,9 +188,8 @@ export default function CustomersOverviewPage() {
   const getStatusBadge = (status: PaymentStatus) => {
     const statusConfig = {
       [PaymentStatus.PAID]: { variant: 'default', className: 'bg-green-500', label: 'Paid' },
-      [PaymentStatus.PENDING]: { variant: 'secondary', className: 'bg-yellow-500', label: 'Pending' },
-      [PaymentStatus.OVERDUE]: { variant: 'destructive', className: 'bg-red-500', label: 'Overdue' },
-      [PaymentStatus.CANCELLED]: { variant: 'outline', className: 'bg-gray-500', label: 'Cancelled' },
+      [PaymentStatus.DUE]: { variant: 'secondary', className: 'bg-yellow-500', label: 'Due' },
+      [PaymentStatus.PARTIAL]: { variant: 'secondary', className: 'bg-orange-500', label: 'Partial' },
     }
 
     const config = statusConfig[status] || { variant: 'secondary', className: 'bg-gray-500', label: 'Unknown' }
@@ -311,9 +310,8 @@ export default function CustomersOverviewPage() {
                     >
                       <option value="all">All Status</option>
                       <option value={PaymentStatus.PAID}>Paid</option>
-                      <option value={PaymentStatus.PENDING}>Pending</option>
-                      <option value={PaymentStatus.OVERDUE}>Overdue</option>
-                      <option value={PaymentStatus.CANCELLED}>Cancelled</option>
+                      <option value={PaymentStatus.DUE}>Due</option>
+                      <option value={PaymentStatus.PARTIAL}>Partial</option>
                     </select>
                   </div>
                   <select

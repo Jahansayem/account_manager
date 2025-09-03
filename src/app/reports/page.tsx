@@ -247,13 +247,12 @@ export default function ReportsPage() {
     const statusCounts: Record<string, number> = {}
     const statusColors = {
       [PaymentStatus.PAID]: '#22c55e',
-      [PaymentStatus.PENDING]: '#eab308',
-      [PaymentStatus.OVERDUE]: '#ef4444',
-      [PaymentStatus.CANCELLED]: '#6b7280',
+      [PaymentStatus.DUE]: '#eab308',
+      [PaymentStatus.PARTIAL]: '#f97316',
     }
 
     customers.forEach(customer => {
-      const status = customer.payment_status || PaymentStatus.PENDING
+      const status = customer.payment_status || PaymentStatus.DUE
       statusCounts[status] = (statusCounts[status] || 0) + 1
     })
 
