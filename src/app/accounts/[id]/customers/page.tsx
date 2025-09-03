@@ -53,29 +53,33 @@ export default function AccountCustomersPage() {
         .single()
 
       if (error) throw error
+      if (!data) throw new Error('Account not found')
+
+      // Type assertion to fix TypeScript inference issue
+      const accountRow = data as any
 
       const accountData: AccountEntity = {
-        id: data.id,
-        email: data.email,
-        accountType: data.account_type,
-        maxCustomers: data.max_customers,
-        purchaseDate: new Date(data.purchase_date),
-        expiryDate: new Date(data.expiry_date),
-        totalAmount: data.total_amount,
-        status: data.status,
-        loginInstructions: data.login_instructions,
-        notes: data.notes,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
-        platform: data.platforms ? {
-          id: data.platforms.id,
-          name: data.platforms.name,
-          description: data.platforms.description,
-          iconType: data.platforms.icon_type,
-          iconValue: data.platforms.icon_value,
-          color: data.platforms.color,
-          category: data.platforms.category,
-          isActive: data.platforms.is_active,
+        id: accountRow.id,
+        email: accountRow.email,
+        accountType: accountRow.account_type,
+        maxCustomers: accountRow.max_customers,
+        purchaseDate: new Date(accountRow.purchase_date),
+        expiryDate: new Date(accountRow.expiry_date),
+        totalAmount: accountRow.total_amount,
+        status: accountRow.status,
+        loginInstructions: accountRow.login_instructions,
+        notes: accountRow.notes,
+        createdAt: new Date(accountRow.created_at),
+        updatedAt: new Date(accountRow.updated_at),
+        platform: accountRow.platforms ? {
+          id: accountRow.platforms.id,
+          name: accountRow.platforms.name,
+          description: accountRow.platforms.description,
+          iconType: accountRow.platforms.icon_type,
+          iconValue: accountRow.platforms.icon_value,
+          color: accountRow.platforms.color,
+          category: accountRow.platforms.category,
+          isActive: accountRow.platforms.is_active,
         } : undefined,
       }
 
