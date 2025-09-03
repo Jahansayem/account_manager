@@ -1,0 +1,1 @@
+importScripts('https://cdn.onesignal.com/sdks/web/v16.21.0/OneSignalSDKUpdaterWorker.js');
