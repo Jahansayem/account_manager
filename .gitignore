@@ -63,3 +63,5 @@ ehthumbs.db
 
 # Bundle analysis
 .next/analyze/
+
+.vercel

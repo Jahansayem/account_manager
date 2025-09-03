@@ -101,7 +101,7 @@ export default function AccountCustomersPage() {
       if (error) throw error
 
       const customersData = data.map(customer => ({
-        ...customer,
+        id: customer.id,
         accountId: customer.account_id,
         customerName: customer.customer_name,
         customerEmail: customer.customer_email,
@@ -111,6 +111,8 @@ export default function AccountCustomersPage() {
         expiryDate: new Date(customer.expiry_date),
         amountPaid: customer.amount_paid,
         paymentStatus: customer.payment_status as PaymentStatus,
+        paymentDate: customer.payment_date ? new Date(customer.payment_date) : null,
+        notes: customer.notes,
         slotNumber: customer.slot_number,
         renewalStatus: customer.renewal_status as RenewalStatus,
         renewalReminderSent: customer.renewal_reminder_sent,
