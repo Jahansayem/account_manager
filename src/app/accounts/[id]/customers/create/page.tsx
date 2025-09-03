@@ -72,27 +72,27 @@ export default function CreateCustomerPage() {
       if (!data) throw new Error('No account data found')
 
       const accountData: AccountEntity = {
-        id: data.id,
-        email: data.email,
-        accountType: data.account_type,
-        maxCustomers: data.max_customers,
-        purchaseDate: new Date(data.purchase_date),
-        expiryDate: new Date(data.expiry_date),
-        totalAmount: data.total_amount,
-        status: data.status,
-        loginInstructions: data.login_instructions,
-        notes: data.notes,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
-        platform: data.platforms ? {
-          id: data.platforms.id,
-          name: data.platforms.name,
-          description: data.platforms.description,
-          iconType: data.platforms.icon_type,
-          iconValue: data.platforms.icon_value,
-          color: data.platforms.color,
-          category: data.platforms.category,
-          isActive: data.platforms.is_active,
+        id: (data as any).id,
+        email: (data as any).email,
+        accountType: (data as any).account_type,
+        maxCustomers: (data as any).max_customers,
+        purchaseDate: new Date((data as any).purchase_date),
+        expiryDate: new Date((data as any).expiry_date),
+        totalAmount: (data as any).total_amount,
+        status: (data as any).status,
+        loginInstructions: (data as any).login_instructions,
+        notes: (data as any).notes,
+        createdAt: new Date((data as any).created_at),
+        updatedAt: new Date((data as any).updated_at),
+        platform: (data as any).platforms ? {
+          id: (data as any).platforms.id,
+          name: (data as any).platforms.name,
+          description: (data as any).platforms.description,
+          iconType: (data as any).platforms.icon_type,
+          iconValue: (data as any).platforms.icon_value,
+          color: (data as any).platforms.color,
+          category: (data as any).platforms.category,
+          isActive: (data as any).platforms.is_active,
         } : undefined,
       }
 
@@ -114,9 +114,9 @@ export default function CreateCustomerPage() {
 
       if (error) throw error
 
-      const usedSlots = customers.map(c => c.slot_number)
+      const usedSlots = (customers as any[]).map(c => c.slot_number)
       const maxSlots = account?.maxCustomers || 10 // fallback
-      const available = []
+      const available: number[] = []
       
       for (let i = 1; i <= maxSlots; i++) {
         if (!usedSlots.includes(i)) {
@@ -173,7 +173,7 @@ export default function CreateCustomerPage() {
       const purchaseDate = new Date(formData.purchaseDate)
       const expiryDate = new Date(purchaseDate.getTime() + formData.durationDays * 24 * 60 * 60 * 1000)
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('customers')
         .insert({
           account_id: accountId,
