@@ -64,7 +64,6 @@ export default function EditCustomerPage() {
         purchase_date: string;
         expiry_date: string;
         total_amount: number;
-        currency: string;
         status: string;
         login_instructions?: string;
         notes?: string;
@@ -91,7 +90,6 @@ export default function EditCustomerPage() {
         purchaseDate: new Date(dbAccount.purchase_date),
         expiryDate: new Date(dbAccount.expiry_date),
         totalAmount: dbAccount.total_amount,
-        currency: dbAccount.currency,
         status: dbAccount.status as AccountStatus,
         loginInstructions: dbAccount.login_instructions,
         notes: dbAccount.notes,
@@ -128,7 +126,6 @@ export default function EditCustomerPage() {
         customer_email?: string;
         customer_phone?: string;
         amount_paid: number;
-        currency: string;
         payment_status: string;
         notes?: string;
         purchase_date: string;
@@ -374,17 +371,7 @@ export default function EditCustomerPage() {
                     {errors.amountPaid && <p className="text-sm text-red-600">{errors.amountPaid}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <select
-                      id="currency"
-                      value={formData.currency}
-                      onChange={(e) => handleInputChange('currency', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    >
-                      <option value="BDT">BDT (৳)</option>
-                    </select>
-                  </div>
+
                 </div>
 
                 {/* Payment Status */}
