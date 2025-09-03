@@ -222,7 +222,6 @@ export default function EditCustomerPage() {
 
     setSaving(true)
     try {
-      // @ts-expect-error - Supabase type issue with update method
       const { error } = await supabase
         .from('customers')
         .update({
