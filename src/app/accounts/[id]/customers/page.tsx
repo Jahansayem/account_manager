@@ -99,8 +99,9 @@ export default function AccountCustomersPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
+      if (!data) return
 
-      const customersData = data.map(customer => ({
+      const customersData = (data as any[]).map(customer => ({
         id: customer.id,
         accountId: customer.account_id,
         customerName: customer.customer_name,
