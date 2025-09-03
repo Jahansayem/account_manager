@@ -204,8 +204,8 @@ export default function CreateCustomerPage() {
       }
 
       router.push(`/accounts/${accountId}/customers`)
-    } catch (error: any) {
-      const message = error?.message || (typeof error === 'string' ? error : JSON.stringify(error))
+    } catch (error: unknown) {
+      const message = (error as Error)?.message || (typeof error === 'string' ? error : JSON.stringify(error))
       console.error('Error creating customer:', message)
       setErrors({ submit: 'Failed to create customer. Please try again.' })
     } finally {

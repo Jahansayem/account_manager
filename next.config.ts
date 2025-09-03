@@ -65,6 +65,16 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
   
+  // ESLint configuration for build - temporarily disabled for deployment
+  eslint: {
+    ignoreDuringBuilds: false, // Enable linting during builds
+  },
+  
+  // TypeScript configuration for build - temporarily disabled for deployment
+  typescript: {
+    ignoreBuildErrors: false, // Enable type checking during builds
+  },
+  
   // Output for better Vercel deployment
   output: 'standalone',
   
@@ -72,8 +82,6 @@ const nextConfig: NextConfig = {
   ...(process.env.NODE_ENV === 'production' && {
     // Disable source maps in production for smaller builds
     productionBrowserSourceMaps: false,
-    // Enable SWC minify for better performance
-    swcMinify: true,
   }),
 };
 

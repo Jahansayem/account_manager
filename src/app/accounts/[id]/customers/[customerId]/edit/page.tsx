@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { useAuth } from '@/lib/auth/auth-context'
@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
 import { CustomerEntity, AccountEntity } from '@/lib/types/entities'
-import { PaymentStatus } from '@/lib/types/enums'
+import { PaymentStatus, AccountType, AccountStatus, IconType, RenewalStatus } from '@/lib/types/enums'
 import { ArrowLeft, User, DollarSign, Calendar, FileText, Mail, Phone } from 'lucide-react'
 import Link from 'next/link'
 
@@ -30,7 +30,6 @@ export default function EditCustomerPage() {
     customerEmail: '',
     customerPhone: '',
     amountPaid: 0,
-    currency: 'BDT',
     paymentStatus: PaymentStatus.PENDING,
     notes: '',
     purchaseDate: '',
@@ -38,13 +37,7 @@ export default function EditCustomerPage() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    if (accountId && customerId) {
-      fetchAccountAndCustomer()
-    }
-  }, [accountId, customerId])
-
-  const fetchAccountAndCustomer = async () => {
+  const fetchAccountAndCustomer = useCallback(async () => {
     if (!user) return
 
     try {
@@ -62,31 +55,59 @@ export default function EditCustomerPage() {
       if (accountError) throw accountError
       if (!accountData) throw new Error('Account not found')
 
+      // Type assertion for database response
+      interface DatabaseAccount {
+        id: string;
+        email: string;
+        account_type: string;
+        max_customers: number;
+        purchase_date: string;
+        expiry_date: string;
+        total_amount: number;
+        currency: string;
+        status: string;
+        login_instructions?: string;
+        notes?: string;
+        created_at: string;
+        updated_at: string;
+        platforms?: {
+          id: string;
+          name: string;
+          description?: string;
+          icon_type: string;
+          icon_value?: string;
+          color: string;
+          category?: string;
+          is_active: boolean;
+        };
+      }
+
+      const dbAccount = accountData as DatabaseAccount;
       const account: AccountEntity = {
-        id: (accountData as any).id,
-        email: (accountData as any).email,
-        accountType: (accountData as any).account_type,
-        maxCustomers: (accountData as any).max_customers,
-        purchaseDate: new Date((accountData as any).purchase_date),
-        expiryDate: new Date((accountData as any).expiry_date),
-        totalAmount: (accountData as any).total_amount,
-        currency: (accountData as any).currency,
-        status: (accountData as any).status,
-        loginInstructions: (accountData as any).login_instructions,
-        notes: (accountData as any).notes,
-        createdAt: new Date((accountData as any).created_at),
-        updatedAt: new Date((accountData as any).updated_at),
-        platform: (accountData as any).platforms ? {
-          id: (accountData as any).platforms.id,
-          name: (accountData as any).platforms.name,
-          description: (accountData as any).platforms.description,
-          iconType: (accountData as any).platforms.icon_type,
-          iconValue: (accountData as any).platforms.icon_value,
-          color: (accountData as any).platforms.color,
-          category: (accountData as any).platforms.category,
-          isActive: (accountData as any).platforms.is_active,
+        id: dbAccount.id,
+        email: dbAccount.email,
+        accountType: dbAccount.account_type as AccountType,
+        maxCustomers: dbAccount.max_customers,
+        purchaseDate: new Date(dbAccount.purchase_date),
+        expiryDate: new Date(dbAccount.expiry_date),
+        totalAmount: dbAccount.total_amount,
+        currency: dbAccount.currency,
+        status: dbAccount.status as AccountStatus,
+        loginInstructions: dbAccount.login_instructions,
+        notes: dbAccount.notes,
+        createdAt: new Date(dbAccount.created_at),
+        updatedAt: new Date(dbAccount.updated_at),
+        platform: dbAccount.platforms ? {
+          id: dbAccount.platforms.id,
+          name: dbAccount.platforms.name,
+          description: dbAccount.platforms.description,
+          iconType: dbAccount.platforms.icon_type as IconType,
+          iconValue: dbAccount.platforms.icon_value || '',
+          color: dbAccount.platforms.color,
+          category: dbAccount.platforms.category,
+          isActive: dbAccount.platforms.is_active,
         } : undefined,
-      } as AccountEntity
+      }
 
       // Fetch customer
       const { data: customerData, error: customerError } = await supabase
@@ -99,20 +120,45 @@ export default function EditCustomerPage() {
       if (customerError) throw customerError
       if (!customerData) throw new Error('Customer not found')
 
+      // Type assertion for customer database response
+      interface DatabaseCustomer {
+        id: string;
+        account_id: string;
+        customer_name: string;
+        customer_email?: string;
+        customer_phone?: string;
+        amount_paid: number;
+        currency: string;
+        payment_status: string;
+        notes?: string;
+        purchase_date: string;
+        expiry_date: string;
+        duration_days: number;
+        slot_number: number;
+        renewal_status: string;
+        renewal_reminder_sent: boolean;
+        created_at: string;
+        updated_at: string;
+      }
+
+      const dbCustomer = customerData as DatabaseCustomer;
       const customer: CustomerEntity = {
-        id: customerData.id,
-        accountId: customerData.account_id,
-        customerName: customerData.customer_name,
-        customerEmail: customerData.customer_email,
-        customerPhone: customerData.customer_phone,
-        amountPaid: customerData.amount_paid,
-        currency: customerData.currency,
-        paymentStatus: customerData.payment_status as PaymentStatus,
-        notes: customerData.notes,
-        purchaseDate: new Date(customerData.purchase_date),
-        expiryDate: new Date(customerData.expiry_date),
-        createdAt: new Date(customerData.created_at),
-        updatedAt: new Date(customerData.updated_at),
+        id: dbCustomer.id,
+        accountId: dbCustomer.account_id,
+        customerName: dbCustomer.customer_name,
+        customerEmail: dbCustomer.customer_email,
+        customerPhone: dbCustomer.customer_phone,
+        amountPaid: dbCustomer.amount_paid,
+        paymentStatus: dbCustomer.payment_status as PaymentStatus,
+        notes: dbCustomer.notes,
+        purchaseDate: new Date(dbCustomer.purchase_date),
+        expiryDate: new Date(dbCustomer.expiry_date),
+        durationDays: dbCustomer.duration_days,
+        slotNumber: dbCustomer.slot_number,
+        renewalStatus: dbCustomer.renewal_status as RenewalStatus,
+        renewalReminderSent: dbCustomer.renewal_reminder_sent,
+        createdAt: new Date(dbCustomer.created_at),
+        updatedAt: new Date(dbCustomer.updated_at),
       }
 
       setAccount(account)
@@ -122,7 +168,6 @@ export default function EditCustomerPage() {
         customerEmail: customer.customerEmail || '',
         customerPhone: customer.customerPhone || '',
         amountPaid: customer.amountPaid,
-        currency: customer.currency,
         paymentStatus: customer.paymentStatus,
         notes: customer.notes || '',
         purchaseDate: customer.purchaseDate.toISOString().split('T')[0],
@@ -134,7 +179,13 @@ export default function EditCustomerPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, accountId, customerId, router])
+
+  useEffect(() => {
+    if (accountId && customerId) {
+      fetchAccountAndCustomer()
+    }
+  }, [accountId, customerId, fetchAccountAndCustomer])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -178,7 +229,6 @@ export default function EditCustomerPage() {
           customer_email: formData.customerEmail || null,
           customer_phone: formData.customerPhone || null,
           amount_paid: formData.amountPaid,
-          currency: formData.currency,
           payment_status: formData.paymentStatus,
           notes: formData.notes || null,
           purchase_date: formData.purchaseDate,

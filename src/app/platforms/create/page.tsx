@@ -94,9 +94,9 @@ export default function CreatePlatformPage() {
       }
 
       router.push('/platforms')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating platform:', error)
-      setErrors({ submit: error.message || 'Failed to create platform. Please try again.' })
+      setErrors({ submit: (error as Error).message || 'Failed to create platform. Please try again.' })
     } finally {
       setLoading(false)
     }
