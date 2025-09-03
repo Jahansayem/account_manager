@@ -72,7 +72,6 @@ export default function CustomersOverviewPage() {
           customerEmail: customerData.customer_email,
           customerPhone: customerData.customer_phone,
           amountPaid: customerData.amount_paid,
-          currency: customerData.currency,
           paymentStatus: Object.values(PaymentStatus).includes(customerData.payment_status as PaymentStatus) 
             ? customerData.payment_status as PaymentStatus 
             : PaymentStatus.DUE,
@@ -89,7 +88,6 @@ export default function CustomersOverviewPage() {
             purchaseDate: new Date((customerData.accounts as any).purchase_date),
             expiryDate: new Date((customerData.accounts as any).expiry_date),
             totalAmount: (customerData.accounts as any).total_amount,
-            currency: (customerData.accounts as any).currency,
             status: (customerData.accounts as any).status,
             loginInstructions: (customerData.accounts as any).login_instructions,
             notes: (customerData.accounts as any).notes,
@@ -392,7 +390,7 @@ export default function CustomersOverviewPage() {
                           </td>
                           <td className="p-4">
                             <span className="font-semibold text-gray-900">
-                              ৳{customer.amountPaid.toFixed(2)} {customer.currency}
+                              ৳{customer.amountPaid.toFixed(2)}
                             </span>
                           </td>
                           <td className="p-4">

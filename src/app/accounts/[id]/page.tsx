@@ -283,7 +283,7 @@ export default function AccountDetailPage() {
                     <p className="text-sm font-medium text-gray-500">Total Amount</p>
                     <p className="text-lg font-semibold flex items-center">
                       <DollarSign className="w-4 h-4 mr-1" />
-                      {account.currency} {account.totalAmount}
+                      ৳{account.totalAmount}
                     </p>
                   </div>
                   <div>

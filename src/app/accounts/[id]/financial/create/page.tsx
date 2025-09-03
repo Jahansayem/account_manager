@@ -63,7 +63,6 @@ export default function CreateFinancialRecordPage() {
         purchaseDate: new Date(data.purchase_date),
         expiryDate: new Date(data.expiry_date),
         totalAmount: data.total_amount,
-        currency: data.currency,
         status: data.status,
         loginInstructions: data.login_instructions,
         notes: data.notes,

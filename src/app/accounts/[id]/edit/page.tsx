@@ -32,7 +32,6 @@ export default function EditAccountPage() {
     purchaseDate: '',
     expiryDate: '',
     totalAmount: 0,
-    currency: 'BDT',
     status: AccountStatus.ACTIVE,
     loginInstructions: '',
     notes: '',
@@ -93,7 +92,6 @@ export default function EditAccountPage() {
         purchaseDate: accountData.purchaseDate.toISOString().split('T')[0],
         expiryDate: accountData.expiryDate.toISOString().split('T')[0],
         totalAmount: accountData.totalAmount,
-        currency: accountData.currency,
         status: accountData.status,
         loginInstructions: accountData.loginInstructions || '',
         notes: accountData.notes || '',
@@ -182,7 +180,6 @@ export default function EditAccountPage() {
           purchase_date: formData.purchaseDate,
           expiry_date: formData.expiryDate,
           total_amount: formData.totalAmount,
-          currency: formData.currency,
           status: formData.status,
           login_instructions: formData.loginInstructions || null,
           notes: formData.notes || null,
@@ -376,17 +373,7 @@ export default function EditAccountPage() {
                     {errors.totalAmount && <p className="text-sm text-red-600">{errors.totalAmount}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <select
-                      id="currency"
-                      value={formData.currency}
-                      onChange={(e) => handleInputChange('currency', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    >
-                      <option value="BDT">BDT (৳)</option>
-                    </select>
-                  </div>
+
                 </div>
 
                 {/* Status */}

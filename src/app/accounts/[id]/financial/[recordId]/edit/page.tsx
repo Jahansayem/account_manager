@@ -67,7 +67,6 @@ export default function EditFinancialRecordPage() {
         purchaseDate: new Date(accountData.purchase_date),
         expiryDate: new Date(accountData.expiry_date),
         totalAmount: accountData.total_amount,
-        currency: accountData.currency,
         status: accountData.status,
         loginInstructions: accountData.login_instructions,
         notes: accountData.notes,

@@ -417,7 +417,7 @@ export default function AccountsPage() {
                               <div className="text-gray-500 text-xs">Max Customers</div>
                             </div>
                             <div className="text-center min-w-[100px]">
-                              <div className="font-medium text-gray-900">{account.currency} {account.totalAmount}</div>
+                              <div className="font-medium text-gray-900">৳{account.totalAmount}</div>
                               <div className="text-gray-500 text-xs">Amount</div>
                             </div>
                             <div className="text-center min-w-[100px]">
@@ -480,7 +480,7 @@ export default function AccountsPage() {
                             </div>
                             <div>
                               <span className="text-gray-500">Amount: </span>
-                              <span className="font-medium">{account.currency} {account.totalAmount}</span>
+                              <span className="font-medium">৳{account.totalAmount}</span>
                             </div>
                             <div>
                               <span className="text-gray-500">Expires: </span>

@@ -22,7 +22,6 @@ export interface AccountEntity {
   purchaseDate: Date
   expiryDate: Date
   totalAmount: number
-  currency: string
   status: AccountStatus
   loginInstructions?: string
   notes?: string

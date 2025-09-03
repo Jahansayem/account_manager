@@ -50,21 +50,21 @@ export default function CustomerNotesPage() {
       if (error) throw error
 
       const customerData: CustomerEntity = {
-        ...data,
-        accountId: data.account_id,
-        customerName: data.customer_name,
-        customerEmail: data.customer_email,
-        customerPhone: data.customer_phone,
-        purchaseDate: new Date(data.purchase_date),
-        durationDays: data.duration_days,
-        expiryDate: new Date(data.expiry_date),
-        amountPaid: data.amount_paid,
-        paymentStatus: data.payment_status,
-        slotNumber: data.slot_number,
-        renewalStatus: data.renewal_status,
-        renewalReminderSent: data.renewal_reminder_sent,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
+        ...(data as any),
+        accountId: (data as any).account_id,
+        customerName: (data as any).customer_name,
+        customerEmail: (data as any).customer_email,
+        customerPhone: (data as any).customer_phone,
+        purchaseDate: new Date((data as any).purchase_date),
+        durationDays: (data as any).duration_days,
+        expiryDate: new Date((data as any).expiry_date),
+        amountPaid: (data as any).amount_paid,
+        paymentStatus: (data as any).payment_status,
+        slotNumber: (data as any).slot_number,
+        renewalStatus: (data as any).renewal_status,
+        renewalReminderSent: (data as any).renewal_reminder_sent,
+        createdAt: new Date((data as any).created_at),
+        updatedAt: new Date((data as any).updated_at),
       }
 
       setCustomer(customerData)
@@ -86,13 +86,13 @@ export default function CustomerNotesPage() {
       if (error) throw error
 
       const notesData = data.map(note => ({
-        ...note,
-        customerId: note.customer_id,
-        accountId: note.account_id,
-        noteText: note.note_text,
-        timestamp: new Date(note.timestamp),
-        createdAt: new Date(note.created_at),
-        updatedAt: new Date(note.updated_at),
+        ...(note as any),
+        customerId: (note as any).customer_id,
+        accountId: (note as any).account_id,
+        noteText: (note as any).note_text,
+        timestamp: new Date((note as any).timestamp),
+        createdAt: new Date((note as any).created_at),
+        updatedAt: new Date((note as any).updated_at),
       })) as CustomerNoteEntity[]
 
       setNotes(notesData)
@@ -110,7 +110,7 @@ export default function CustomerNotesPage() {
     setAddingNote(true)
     try {
       const now = new Date()
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('customer_notes')
         .insert({
           customer_id: customerId,

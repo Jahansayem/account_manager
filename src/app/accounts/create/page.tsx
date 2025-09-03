@@ -336,17 +336,7 @@ export default function CreateAccountPage() {
                     {errors.totalAmount && <p className="text-sm text-red-600">{errors.totalAmount}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <select
-                      id="currency"
-                      value={formData.currency}
-                      onChange={(e) => handleInputChange('currency', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    >
-                      <option value="BDT">BDT (৳)</option>
-                    </select>
-                  </div>
+
                 </div>
 
                 {/* Status */}

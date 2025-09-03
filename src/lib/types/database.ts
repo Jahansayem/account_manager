@@ -19,7 +19,6 @@ export interface Database {
           purchase_date: string
           expiry_date: string
           total_amount: number
-          currency: string
           status: 'active' | 'inactive' | 'suspended' | 'archived'
           login_instructions: string | null
           notes: string | null
@@ -36,7 +35,6 @@ export interface Database {
           purchase_date: string
           expiry_date: string
           total_amount: number
-          currency?: string
           status?: 'active' | 'inactive' | 'suspended' | 'archived'
           login_instructions?: string | null
           notes?: string | null
@@ -53,7 +51,6 @@ export interface Database {
           purchase_date?: string
           expiry_date?: string
           total_amount?: number
-          currency?: string
           status?: 'active' | 'inactive' | 'suspended' | 'archived'
           login_instructions?: string | null
           notes?: string | null

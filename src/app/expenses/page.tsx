@@ -87,7 +87,6 @@ export default function ExpensesOverviewPage() {
             purchaseDate: new Date((recordData.accounts as any).purchase_date),
             expiryDate: new Date((recordData.accounts as any).expiry_date),
             totalAmount: (recordData.accounts as any).total_amount,
-            currency: (recordData.accounts as any).currency,
             status: (recordData.accounts as any).status,
             loginInstructions: (recordData.accounts as any).login_instructions,
             notes: (recordData.accounts as any).notes,
