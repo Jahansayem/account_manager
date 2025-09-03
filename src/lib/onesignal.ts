@@ -38,7 +38,7 @@ class OneSignalService {
         })
 
         this.isInitialized = true
-        console.log('🔔 OneSignal initialized successfully')
+        // OneSignal initialized successfully
       }
     } catch (error) {
       console.warn('OneSignal initialization failed (normal for development):', error.message)
@@ -60,7 +60,7 @@ class OneSignalService {
       const { default: OneSignal } = await import('react-onesignal')
       
       const permission = await OneSignal.Notifications.requestPermission()
-      console.log('🔔 Notification permission:', permission)
+      // Permission status updated
       
       return permission
     } catch (error) {
@@ -104,7 +104,7 @@ class OneSignalService {
       const result = await response.json()
       
       if (response.ok) {
-        console.log('🔔 Notification sent successfully:', result)
+        // Notification sent successfully
         return true
       } else {
         console.error('Failed to send notification:', result)
@@ -186,7 +186,7 @@ class OneSignalService {
 
       if (error) throw error
 
-      console.log(`🔔 Found ${customers?.length || 0} customers with due payments`)
+      // Found customers with due payments
 
       // Send notification for each customer
       for (const customer of customers || []) {

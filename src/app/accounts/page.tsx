@@ -9,9 +9,9 @@ import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { AccountEntity, AccountStatistics } from '@/lib/types/entities'
 import { AccountStatus, AccountType } from '@/lib/types/enums'
-import { Plus, Search, Mail, Calendar, DollarSign, Users, CheckCircle, XCircle, AlertCircle, Clock, Trash2, Copy } from 'lucide-react'
+import { Plus, Search, Mail, DollarSign, Users, CheckCircle, XCircle, AlertCircle, Clock, Trash2, Copy } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import Link from 'next/link'
 
 export default function AccountsPage() {

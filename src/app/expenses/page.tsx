@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { FinancialRecordEntity, AccountEntity } from '@/lib/types/entities'
-import { RecordType } from '@/lib/types/enums'
+import { RecordType, AccountType, AccountStatus, IconType } from '@/lib/types/enums'
+import { Database } from '@/lib/types/database'
 import { DollarSign, Search, TrendingDown, TrendingUp, Calendar, Eye, Edit, Filter, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -67,41 +68,57 @@ export default function ExpensesOverviewPage() {
 
       if (error) throw error
 
-      const recordsWithAccounts = (data || []).map(recordData => {
+      type FinancialRecordWithJoins = Database['public']['Tables']['financial_records']['Row'] & {
+        accounts: (Database['public']['Tables']['accounts']['Row'] & {
+          platforms: Database['public']['Tables']['platforms']['Row'] | null
+        }) | null
+      }
+
+      const financialRows = (data || []) as FinancialRecordWithJoins[]
+      const recordsWithAccounts = financialRows.map(recordData => {
         const record: FinancialRecordWithAccount = {
           id: recordData.id,
           accountId: recordData.account_id,
           description: recordData.description,
           amount: recordData.amount,
           recordType: recordData.record_type as RecordType,
-          category: recordData.category,
-          notes: recordData.notes,
+          category: recordData.category ?? undefined,
+          notes: recordData.notes ?? undefined,
           date: new Date(recordData.date),
           createdAt: new Date(recordData.created_at),
           updatedAt: new Date(recordData.updated_at),
-          account: {
-            id: (recordData.accounts as any).id,
-            email: (recordData.accounts as any).email,
-            accountType: (recordData.accounts as any).account_type,
-            maxCustomers: (recordData.accounts as any).max_customers,
-            purchaseDate: new Date((recordData.accounts as any).purchase_date),
-            expiryDate: new Date((recordData.accounts as any).expiry_date),
-            totalAmount: (recordData.accounts as any).total_amount,
-            status: (recordData.accounts as any).status,
-            loginInstructions: (recordData.accounts as any).login_instructions,
-            notes: (recordData.accounts as any).notes,
-            createdAt: new Date((recordData.accounts as any).created_at),
-            updatedAt: new Date((recordData.accounts as any).updated_at),
-            platform: (recordData.accounts as any).platforms ? {
-              id: (recordData.accounts as any).platforms.id,
-              name: (recordData.accounts as any).platforms.name,
-              description: (recordData.accounts as any).platforms.description,
-              iconType: (recordData.accounts as any).platforms.icon_type,
-              iconValue: (recordData.accounts as any).platforms.icon_value,
-              color: (recordData.accounts as any).platforms.color,
-              category: (recordData.accounts as any).platforms.category,
-              isActive: (recordData.accounts as any).platforms.is_active,
+          account: recordData.accounts ? {
+            id: recordData.accounts.id,
+            email: recordData.accounts.email,
+            accountType: recordData.accounts.account_type as AccountType,
+            maxCustomers: recordData.accounts.max_customers,
+            purchaseDate: new Date(recordData.accounts.purchase_date),
+            expiryDate: new Date(recordData.accounts.expiry_date),
+            totalAmount: recordData.accounts.total_amount,
+            status: recordData.accounts.status as AccountStatus,
+            loginInstructions: recordData.accounts.login_instructions ?? undefined,
+            notes: recordData.accounts.notes ?? undefined,
+            createdAt: new Date(recordData.accounts.created_at),
+            updatedAt: new Date(recordData.accounts.updated_at),
+            platform: recordData.accounts.platforms ? {
+              id: recordData.accounts.platforms.id,
+              name: recordData.accounts.platforms.name,
+              description: recordData.accounts.platforms.description || undefined,
+              iconType: recordData.accounts.platforms.icon_type as IconType,
+              iconValue: recordData.accounts.platforms.icon_data,
+              color: recordData.accounts.platforms.color_hex,
+              category: recordData.accounts.platforms.category || undefined,
+              isActive: recordData.accounts.platforms.is_active,
             } : undefined,
+          } : {
+            id: '',
+            email: '',
+            accountType: AccountType.PRIVATE,
+            maxCustomers: 0,
+            purchaseDate: new Date(),
+            expiryDate: new Date(),
+            totalAmount: 0,
+            status: AccountStatus.ACTIVE
           } as AccountEntity,
         }
         return record
@@ -124,7 +141,8 @@ export default function ExpensesOverviewPage() {
         .order('name')
 
       if (error) throw error
-      setPlatforms(data || [])
+      const platformRows = (data || []) as Database['public']['Tables']['platforms']['Row'][]
+      setPlatforms(platformRows)
     } catch (error) {
       console.error('Error fetching platforms:', error)
     }

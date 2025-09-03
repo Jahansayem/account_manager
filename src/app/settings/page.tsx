@@ -63,9 +63,9 @@ export default function SettingsPage() {
     try {
       const granted = await requestPermission()
       if (granted) {
-        console.log('✅ Push notification permission granted')
+        // Permission granted successfully
       } else {
-        console.log('❌ Push notification permission denied')
+        // Permission denied
       }
     } catch (error) {
       console.error('Error requesting permission:', error)
@@ -79,7 +79,7 @@ export default function SettingsPage() {
       ...prev,
       [setting]: value
     }))
-    console.log(`Setting ${setting} changed to:`, value)
+    // Setting updated
   }
 
   const handleTestNotification = async () => {

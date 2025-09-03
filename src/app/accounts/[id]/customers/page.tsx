@@ -55,13 +55,16 @@ export default function AccountCustomersPage() {
       if (error) throw error
 
       const accountData: AccountEntity = {
-        ...data,
+        id: data.id,
+        email: data.email,
         accountType: data.account_type,
         maxCustomers: data.max_customers,
         purchaseDate: new Date(data.purchase_date),
         expiryDate: new Date(data.expiry_date),
         totalAmount: data.total_amount,
+        status: data.status,
         loginInstructions: data.login_instructions,
+        notes: data.notes,
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at),
         platform: data.platforms ? {

@@ -12,7 +12,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
 import { oneSignalService } from '@/lib/onesignal'
 import { AccountEntity } from '@/lib/types/entities'
-import { RenewalStatus } from '@/lib/types/enums'
+import { RenewalStatus, AccountType, AccountStatus, IconType } from '@/lib/types/enums'
+import { Database } from '@/lib/types/database'
 import { ArrowLeft, User, Mail, Phone, Calendar, DollarSign, Clock, FileText } from 'lucide-react'
 import Link from 'next/link'
 
@@ -71,28 +72,32 @@ export default function CreateCustomerPage() {
       if (error) throw error
       if (!data) throw new Error('No account data found')
 
+      const accountRow = data as Database['public']['Tables']['accounts']['Row'] & {
+        platforms: Database['public']['Tables']['platforms']['Row'] | null
+      }
+
       const accountData: AccountEntity = {
-        id: (data as any).id,
-        email: (data as any).email,
-        accountType: (data as any).account_type,
-        maxCustomers: (data as any).max_customers,
-        purchaseDate: new Date((data as any).purchase_date),
-        expiryDate: new Date((data as any).expiry_date),
-        totalAmount: (data as any).total_amount,
-        status: (data as any).status,
-        loginInstructions: (data as any).login_instructions,
-        notes: (data as any).notes,
-        createdAt: new Date((data as any).created_at),
-        updatedAt: new Date((data as any).updated_at),
-        platform: (data as any).platforms ? {
-          id: (data as any).platforms.id,
-          name: (data as any).platforms.name,
-          description: (data as any).platforms.description,
-          iconType: (data as any).platforms.icon_type,
-          iconValue: (data as any).platforms.icon_value,
-          color: (data as any).platforms.color,
-          category: (data as any).platforms.category,
-          isActive: (data as any).platforms.is_active,
+        id: accountRow.id,
+        email: accountRow.email,
+        accountType: accountRow.account_type as AccountType,
+        maxCustomers: accountRow.max_customers,
+        purchaseDate: new Date(accountRow.purchase_date),
+        expiryDate: new Date(accountRow.expiry_date),
+        totalAmount: accountRow.total_amount,
+        status: accountRow.status as AccountStatus,
+        loginInstructions: accountRow.login_instructions || undefined,
+        notes: accountRow.notes || undefined,
+        createdAt: new Date(accountRow.created_at),
+        updatedAt: new Date(accountRow.updated_at),
+        platform: accountRow.platforms ? {
+          id: accountRow.platforms.id,
+          name: accountRow.platforms.name,
+          description: accountRow.platforms.description || undefined,
+          iconType: accountRow.platforms.icon_type as IconType,
+          iconValue: accountRow.platforms.icon_data,
+          color: accountRow.platforms.color_hex,
+          category: accountRow.platforms.category || undefined,
+          isActive: accountRow.platforms.is_active,
         } : undefined,
       }
 
@@ -114,7 +119,8 @@ export default function CreateCustomerPage() {
 
       if (error) throw error
 
-      const usedSlots = (customers as any[]).map(c => c.slot_number)
+      const customerRows = customers as Database['public']['Tables']['customers']['Row'][]
+      const usedSlots = customerRows.map(c => c.slot_number)
       const maxSlots = account?.maxCustomers || 10 // fallback
       const available: number[] = []
       
@@ -173,24 +179,25 @@ export default function CreateCustomerPage() {
       const purchaseDate = new Date(formData.purchaseDate)
       const expiryDate = new Date(purchaseDate.getTime() + formData.durationDays * 24 * 60 * 60 * 1000)
 
-      const { error } = await (supabase as any)
+      const customerInsert: Database['public']['Tables']['customers']['Insert'] = {
+        account_id: accountId,
+        customer_name: formData.customerName,
+        customer_email: formData.customerEmail || null,
+        customer_phone: formData.customerPhone || null,
+        purchase_date: formData.purchaseDate,
+        duration_days: formData.durationDays,
+        expiry_date: expiryDate.toISOString().split('T')[0],
+        amount_paid: formData.amountPaid,
+        payment_status: formData.paymentStatus,
+        notes: formData.notes || null,
+        slot_number: formData.slotNumber,
+        renewal_status: formData.renewalStatus,
+        renewal_reminder_sent: formData.renewalReminderSent,
+      }
+
+      const { error } = await supabase
         .from('customers')
-        .insert({
-          account_id: accountId,
-          customer_name: formData.customerName,
-          customer_email: formData.customerEmail || null,
-          customer_phone: formData.customerPhone || null,
-          purchase_date: formData.purchaseDate,
-          duration_days: formData.durationDays,
-          expiry_date: expiryDate.toISOString().split('T')[0],
-          amount_paid: formData.amountPaid,
-          // Ensure valid enum for DB
-          payment_status: formData.paymentStatus,
-          notes: formData.notes || null,
-          slot_number: formData.slotNumber,
-          renewal_status: formData.renewalStatus,
-          renewal_reminder_sent: formData.renewalReminderSent,
-        })
+        .insert(customerInsert as any)
 
       if (error) throw error
 

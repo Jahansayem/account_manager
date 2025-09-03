@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { RecordType, PaymentStatus } from '@/lib/types/enums'
+import { Database } from '@/lib/types/database'
 import { 
   BarChart, 
   Bar, 
@@ -95,25 +96,32 @@ export default function ReportsPage() {
           break
       }
 
-      // Fetch all data in parallel
+      // Fetch data step by step to handle relationships properly
+      const accountsResult = await supabase
+        .from('accounts')
+        .select(`*, platforms(*)`)
+        .eq('user_id', user.id)
+
+      if (accountsResult.error) throw accountsResult.error
+      const accounts = (accountsResult.data || []) as (Database['public']['Tables']['accounts']['Row'] & {
+        platforms: Database['public']['Tables']['platforms']['Row'] | null
+      })[]
+
+      const accountIds = accounts.map(acc => acc.id)
+
       const [
-        accountsResult,
         customersResult,
         financialResult,
         platformsResult
       ] = await Promise.all([
         supabase
-          .from('accounts')
-          .select(`*, platforms(*)`)
-          .eq('user_id', user.id),
-        supabase
           .from('customers')
-          .select(`*, accounts(*, platforms(*))`)
-          .eq('accounts.user_id', user.id),
+          .select('*')
+          .in('account_id', accountIds),
         supabase
           .from('financial_records')
-          .select(`*, accounts(*, platforms(*))`)
-          .eq('accounts.user_id', user.id)
+          .select('*')
+          .in('account_id', accountIds)
           .gte('date', startDate.toISOString())
           .lte('date', endDate.toISOString()),
         supabase
@@ -122,15 +130,13 @@ export default function ReportsPage() {
           .eq('is_active', true)
       ])
 
-      if (accountsResult.error) throw accountsResult.error
       if (customersResult.error) throw customersResult.error
       if (financialResult.error) throw financialResult.error
       if (platformsResult.error) throw platformsResult.error
 
-      const accounts = accountsResult.data || []
-      const customers = customersResult.data || []
-      const financial = financialResult.data || []
-      const platforms = platformsResult.data || []
+      const customers = (customersResult.data || []) as Database['public']['Tables']['customers']['Row'][]
+      const financial = (financialResult.data || []) as Database['public']['Tables']['financial_records']['Row'][]
+      const platforms = (platformsResult.data || []) as Database['public']['Tables']['platforms']['Row'][]
 
       // Process data for charts
       processReportData(accounts, customers, financial, platforms, startDate, endDate)
@@ -141,7 +147,16 @@ export default function ReportsPage() {
     }
   }
 
-  const processReportData = (accounts: any[], customers: any[], financial: any[], platforms: any[], startDate: Date, endDate: Date) => {
+  const processReportData = (
+    accounts: (Database['public']['Tables']['accounts']['Row'] & {
+      platforms: Database['public']['Tables']['platforms']['Row'] | null
+    })[],
+    customers: Database['public']['Tables']['customers']['Row'][],
+    financial: Database['public']['Tables']['financial_records']['Row'][],
+    platforms: Database['public']['Tables']['platforms']['Row'][],
+    startDate: Date,
+    endDate: Date
+  ) => {
     // Monthly Revenue Data
     const monthlyRevenue = generateMonthlyRevenue(financial, startDate, endDate)
     
@@ -185,7 +200,7 @@ export default function ReportsPage() {
     })
   }
 
-  const generateMonthlyRevenue = (financial: any[], startDate: Date, endDate: Date) => {
+  const generateMonthlyRevenue = (financial: Database['public']['Tables']['financial_records']['Row'][], startDate: Date, endDate: Date) => {
     const monthlyData: Record<string, { income: number, expenses: number }> = {}
     
     // Initialize months
@@ -216,19 +231,28 @@ export default function ReportsPage() {
     }))
   }
 
-  const generatePlatformBreakdown = (accounts: any[], customers: any[], platforms: any[]) => {
+  const generatePlatformBreakdown = (
+    accounts: (Database['public']['Tables']['accounts']['Row'] & {
+      platforms: Database['public']['Tables']['platforms']['Row'] | null
+    })[],
+    customers: Database['public']['Tables']['customers']['Row'][],
+    platforms: Database['public']['Tables']['platforms']['Row'][]
+  ) => {
     const platformData: Record<string, { revenue: number, customers: number, color: string }> = {}
 
     platforms.forEach(platform => {
       platformData[platform.id] = {
         revenue: 0,
         customers: 0,
-        color: platform.color || '#8884d8',
+        color: platform.color_hex || '#8884d8',
       }
     })
 
     customers.forEach(customer => {
-      const platformId = customer.accounts?.platform_id
+      // Note: In this context, we need to match customers with accounts to get platform_id
+      // This would require a proper join or separate lookup logic
+      const account = accounts.find(acc => acc.id === customer.account_id)
+      const platformId = account?.platform_id
       if (platformId && platformData[platformId]) {
         platformData[platformId].revenue += customer.amount_paid || 0
         platformData[platformId].customers += 1
@@ -239,11 +263,11 @@ export default function ReportsPage() {
       name: platform.name,
       revenue: platformData[platform.id]?.revenue || 0,
       customers: platformData[platform.id]?.customers || 0,
-      color: platform.color || '#8884d8',
+      color: platform.color_hex || '#8884d8',
     })).filter(item => item.revenue > 0 || item.customers > 0)
   }
 
-  const generatePaymentStatusData = (customers: any[]) => {
+  const generatePaymentStatusData = (customers: Database['public']['Tables']['customers']['Row'][]) => {
     const statusCounts: Record<string, number> = {}
     const statusColors = {
       [PaymentStatus.PAID]: '#22c55e',
@@ -263,7 +287,7 @@ export default function ReportsPage() {
     }))
   }
 
-  const generateRevenueByCategory = (financial: any[]) => {
+  const generateRevenueByCategory = (financial: Database['public']['Tables']['financial_records']['Row'][]) => {
     const categoryData: Record<string, number> = {}
 
     financial.forEach(record => {
@@ -279,7 +303,12 @@ export default function ReportsPage() {
       .slice(0, 10)
   }
 
-  const generateTopAccounts = (accounts: any[], customers: any[]) => {
+  const generateTopAccounts = (
+    accounts: (Database['public']['Tables']['accounts']['Row'] & {
+      platforms: Database['public']['Tables']['platforms']['Row'] | null
+    })[],
+    customers: Database['public']['Tables']['customers']['Row'][]
+  ) => {
     const accountData: Record<string, { revenue: number, customers: number, platform: string }> = {}
 
     customers.forEach(customer => {
@@ -307,7 +336,7 @@ export default function ReportsPage() {
       .slice(0, 10)
   }
 
-  const generateMonthlyGrowth = (monthlyRevenue: any[]) => {
+  const generateMonthlyGrowth = (monthlyRevenue: Array<{ month: string, income: number, expenses: number, profit: number }>) => {
     return monthlyRevenue.map((current, index) => {
       if (index === 0) return { month: current.month, growth: 0 }
       
@@ -487,7 +516,7 @@ export default function ReportsPage() {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
                     >
                       {reportData.paymentStatus.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />

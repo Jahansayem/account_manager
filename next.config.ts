@@ -77,6 +77,7 @@ const nextConfig: NextConfig = {
   
   // Output for better Vercel deployment
   output: 'standalone',
+  outputFileTracingRoot: __dirname,
   
   // Vercel deployment optimizations
   ...(process.env.NODE_ENV === 'production' && {
