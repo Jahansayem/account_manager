@@ -222,8 +222,7 @@ export default function EditCustomerPage() {
 
     setSaving(true)
     try {
-      // @ts-expect-error - Supabase client type inference issue in production builds
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('customers')
         .update({
           customer_name: formData.customerName,
